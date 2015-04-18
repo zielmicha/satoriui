@@ -1,7 +1,13 @@
 apply plugin: 'java'
 
+sourceCompatibility = '1.8'
+
 dependencies {
     compile project(':server');
+}
+
+repositories {
+    mavenCentral()
 }
 
 task onejar(type: Jar, dependsOn: compileJava) {
@@ -19,3 +25,6 @@ task onejar(type: Jar, dependsOn: compileJava) {
 
     archiveName 'satori-all.jar'
 }
+
+apply plugin:'application'
+mainClassName = 'net.atomshare.satori.Server'
