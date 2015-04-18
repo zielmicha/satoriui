@@ -34,5 +34,13 @@
     <orderEntry type="library" exported="" name="Gradle: commons-codec:commons-codec:1.6" level="project" />
     <orderEntry type="library" exported="" name="Gradle: org.eclipse.jetty:jetty-util:9.0.2.v20130417" level="project" />
     <orderEntry type="library" exported="" name="Gradle: org.eclipse.jetty:jetty-security:9.0.2.v20130417" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: com.hubspot.jinjava:jinjava:2.0.1" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: org.javassist:javassist:3.18.2-GA" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: org.jsoup:jsoup:1.8.1" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: de.odysseus.juel:juel-api:2.2.6" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: de.odysseus.juel:juel-impl:2.2.7" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: de.odysseus.juel:juel-spi:2.2.7" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: org.apache.commons:commons-lang3:3.3.2" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.3.1" level="project" />
   </component>
 </module>
