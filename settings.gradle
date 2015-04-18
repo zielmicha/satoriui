@@ -1,2 +1,6 @@
 rootProject.name = 'satoriui'
 
+include 'api'
+
+include 'server'
+
