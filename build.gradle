@@ -10,6 +10,14 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDir 'res'
+        }
+    }
+}
+
 task onejar(type: Jar, dependsOn: compileJava) {
     from files(sourceSets.main.output.classesDir,
             sourceSets.main.resources)

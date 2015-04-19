@@ -8,10 +8,11 @@ import java.net.URLEncoder;
 public class Server extends BaseServer {
     public static void main(String[] args) {
         Spark.port(7000);
-        Spark.staticFileLocation("/static");
+        //Spark.staticFileLocation("/");
+        Spark.externalStaticFileLocation("res");
 
         Server server = new Server();
-        Spark.get("/", server::index);
+        //Spark.get("/", server::index);
         Spark.get("/login", server::login);
     }
 
