@@ -36,3 +36,4 @@ task onejar(type: Jar, dependsOn: compileJava) {
 
 apply plugin:'application'
 mainClassName = 'net.atomshare.satori.gui.LoginScreen'
+applicationDefaultJvmArgs = ['-Dprism.verbose=true']
