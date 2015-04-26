@@ -4,3 +4,4 @@ include 'api'
 
 include 'server'
 
+include 'gui'

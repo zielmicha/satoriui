@@ -3,7 +3,7 @@ apply plugin: 'java'
 sourceCompatibility = '1.8'
 
 dependencies {
-    compile project(':server');
+    compile project(':gui');
 }
 
 repositories {
@@ -35,4 +35,4 @@ task onejar(type: Jar, dependsOn: compileJava) {
 }
 
 apply plugin:'application'
-mainClassName = 'net.atomshare.satori.Server'
+mainClassName = 'net.atomshare.satori.gui.LoginScreen'
