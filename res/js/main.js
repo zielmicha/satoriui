@@ -23,12 +23,20 @@ function SatoriViewModel() {
         });
 
         this.get('#/contests', function () {
-            self.contests([
-                {name: 'Joined contests', contests: [
-                    {name: 'Playground', description: 'Satori Playground'},
-                    {name: 'MP, 2014/15', description: 'Metody programowania, semestr letni 2014/2015'}
-                ]}
-            ]);
+            $.get('/contests', function(result) {
+                console.log(result)
+                var results = []
+                for(var i in result) {
+                    var item = result[i];
+                    results.push({
+                        name: item.contest.name,
+                        description: item.contest.description
+                    })
+                }
+                self.contests([
+                    {name: 'All contests', contests: results}
+                ]);
+            });
         });
 
         this.get('/', function () {
