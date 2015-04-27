@@ -38,10 +38,8 @@ public class LoginScreen extends Application {
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
-
         final Text actiontarget = new Text();
         grid.add(actiontarget, 1, 6);
-
 
         Button btn = new Button("Sign in");
         HBox hbBtn = new HBox(10);
@@ -50,7 +48,6 @@ public class LoginScreen extends Application {
         grid.add(hbBtn, 1, 4);
 
         btn.setOnAction(new EventHandler<ActionEvent>() {
-
             @Override
             public void handle(ActionEvent e) {
                 actiontarget.setFill(Color.FIREBRICK);
