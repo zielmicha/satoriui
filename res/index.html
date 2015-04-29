@@ -6,14 +6,37 @@
 </head>
 <body>
 
-<div data-bind="if: contests"
-   class="col-md-6 col-md-offset-1">
-  <div
+<div class="navbar navbar-default navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <a href="/" class="navbar-brand">SatoriUI</a>
+      <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="" id="navbar-main">
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a href="#/contests">contests</a>
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+<div id="main-container">
+<div>
+
+
+<div data-bind="if: contests">
+  <div class="col-md-6 col-md-offset-1"
      data-bind="foreach: contests">
     <table class="table table-striped">
       <caption data-bind="text: name"></caption>
       <tbody data-bind="foreach: contests">
-        <tr>
+        <tr data-bind="click: open">
           <td data-bind="text: name"></td>
           <td data-bind="text: description"></td>
         </tr>
@@ -23,9 +46,8 @@
 </div>
 
 <div
-   data-bind="with: loginDialog"
-   class="col-md-4 col-md-offset-4">
-  <div>
+   data-bind="with: loginDialog">
+  <div class="col-md-4 col-md-offset-4">
     <div class="panel panel-default">
       <div>
         <div class="panel-heading"><h3 class="panel-title"><strong>Sign in</strong></h3></div>
@@ -52,9 +74,36 @@
   </div>
 </div>
 
+<div data-bind="with: contest">
+  <div class="col-md-6 col-md-offset-1">
+    <h1>Contest <span data-bind="text: contest.name"></span></h1>
+
+    <ul class="nav nav-tabs" role="tablist">
+      <!-- ko foreach: subpages -->
+      <li role="presentation" class="active">
+        <a data-bind="click: gotoPage, text: name"
+           aria-controls="home" role="tab"></a></li>
+      <!-- /ko -->
+    </ul>
+
+    <div class="tab-content">
+      <!-- ko with: $root.subpage -->
+      <div role="tabpanel" class="tab-pane fade in active">
+        <pre data-bind="text: content"></pre>
+      </div>
+      <!-- /ko -->
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
 <script src="/dep/jquery-1.11.2.js"></script>
 <script src="/dep/sammy.js"></script>
 <script src="/dep/knockout-3.3.0.js"></script>
 <script src="/js/main.js"></script>
+<!--<script src="/dep/bootstrap/css/bootstrap.min.js"></script>-->
+
 </body>
 </html>

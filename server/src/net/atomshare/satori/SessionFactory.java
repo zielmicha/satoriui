@@ -13,16 +13,48 @@ import java.util.concurrent.*;
 public class SessionFactory {
     private Map<String, Session> cached = new HashMap<>();
     private BlockingQueue<TProtocol> connectionPool = new LinkedBlockingQueue<>();
+    private BlockingQueue<Unit> connectionsToCreate = new LinkedBlockingQueue<>();
 
-    private static final String host = "localhost" /*"satori.tcs.uj.edu.pl"*/;
+    private static final String host = "satori.tcs.uj.edu.pl";
     private static final int thriftPort = 2889;
     private static final int blobsPort = 2887;
     private static final int connectionCount = 16;
 
     public SessionFactory() throws IOException, TTransportException {
         for(int i=0; i < connectionCount; i++) {
-            connectionPool.add(createProtocol());
+            try {
+                connectionsToCreate.put(Unit.VALUE);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
+    }
+
+    public void startConnectionCreator() {
+        new Thread(() -> {
+            try {
+                //noinspection InfiniteLoopStatement
+                while (true) {
+                    Unit token = connectionsToCreate.take();
+                    while (true) {
+                        try {
+                            addConnection();
+                            break;
+                        } catch(IOException|TTransportException ex) {
+                            ex.printStackTrace();
+                            Thread.sleep(2000);
+                        }
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void addConnection() throws IOException, TTransportException {
+        connectionPool.add(createProtocol());
+        System.err.println("Connection created.");
     }
 
     public Connection takeConnection() throws TException {
@@ -40,8 +72,18 @@ public class SessionFactory {
     }
 
     public <T> T withConnection(Producer<T> producer) throws TException {
-        try(Connection conn = takeConnection()) {
-            return producer.produce(conn);
+        while(true) {
+            Connection conn = takeConnection();
+            try {
+                return producer.produce(conn);
+            } catch (TTransportException ex) {
+                ex.printStackTrace();
+                conn.destroy();
+                conn = null;
+            } finally {
+                if (conn != null)
+                    conn.close();
+            }
         }
     }
 
@@ -49,6 +91,18 @@ public class SessionFactory {
             extends Connection {
         public SessionConnection(TProtocol protocol) {
             super(protocol);
+        }
+
+        @Override
+        public void destroy()  {
+            synchronized (SessionFactory.this) {
+                try {
+                    connectionsToCreate.put(Unit.VALUE);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            protocol.getTransport().close();
         }
 
         @Override

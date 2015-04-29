@@ -24,13 +24,22 @@ public class Session {
         return withConnection((conn) -> conn.web.Web_get_contest_list(token));
     }
 
+    public List<ProblemMappingInfo> getProblems(long contest) throws TException {
+        return withConnection((conn) ->
+                conn.web.Web_get_problem_mapping_list(token, contest));
+    }
+
     public UserStruct getCurrentUser() throws TException {
         return getPageInfo().getUser();
     }
 
-    public PageInfo getPageInfo() throws TException {
+    public PageInfo getPageInfo(long contest) throws TException {
         return withConnection((conn) ->
-                conn.web.Web_get_page_info(token, 0));
+                conn.web.Web_get_page_info(token, contest));
+    }
+
+    public PageInfo getPageInfo() throws TException {
+        return getPageInfo(0);
     }
 
     private void authenticate() throws TException {

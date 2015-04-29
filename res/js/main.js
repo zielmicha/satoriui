@@ -2,23 +2,55 @@
 function SatoriViewModel() {
     var self = this;
     self.loginDialog = ko.observable(null);
-    self.contests = ko.observable(null)
+    self.contests = ko.observable(null);
+    self.contest = ko.observable(null);
+    self.subpage = ko.observable(null);
 
     self.clear = function() {
-        self.loginDialog(undefined)
-        self.contests(undefined)
+        self.loginDialog(undefined);
+        self.contests(undefined);
+        self.contest(undefined);
     }
 
     var app = Sammy(function () {
         this.before({}, function() {
-            self.clear()
+            self.clear();
         })
 
         this.get('#/login', function () {
             self.loginDialog({
                 login: function() {
-                    location.hash = '#/contests'
+                    location.hash = '#/contests';
                 }
+            });
+        });
+
+        function loadContest(req, callback) {
+            $.get('/page-info/' + req.params.id, function(result) {
+                $.each(result.subpages, function(i, value) {
+                    value.gotoPage = function() {
+                        location.hash = '#/contest/' + req.params.id + '/subpage/' + value.id;
+                    };
+                });
+
+                self.contest(result);
+                callback(result);
+            });
+        }
+
+        this.get('#/contest/:id', function() {
+            loadContest(this, function(result) {
+                self.subpage(result.subpages[0])
+            });
+        });
+
+        this.get('#/contest/:id/subpage/:subpage', function() {
+            var req = this;
+            loadContest(req, function(result) {
+                $.each(result.subpages, function(i, value) {
+                    if(value.id === parseInt(req.params.subpage))
+                        self.subpage(value);
+                });
             });
         });
 
@@ -27,12 +59,19 @@ function SatoriViewModel() {
                 console.log(result)
                 var results = []
                 for(var i in result) {
+                (function(i) {
                     var item = result[i];
-                    results.push({
-                        name: item.contest.name,
-                        description: item.contest.description
-                    })
-                }
+                    var accepted = !item.contestant || item.contestant.accepted;
+                    if(accepted && !item.contest.archived)
+                        results.push({
+                            name: item.contest.name,
+                            description: item.contest.description,
+                            open: function() {
+                                location.hash = '#/contest/' + item.contest.id
+                            }
+                        })
+                })(i);
+                 }
                 self.contests([
                     {name: 'All contests', contests: results}
                 ]);
@@ -40,7 +79,7 @@ function SatoriViewModel() {
         });
 
         this.get('/', function () {
-            location.hash = '#/login'
+            location.hash = '#/contests'
         });
 
         this._checkFormSubmission = function(form) {

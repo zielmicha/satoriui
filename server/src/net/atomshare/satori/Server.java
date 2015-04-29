@@ -17,6 +17,7 @@ public class Server extends BaseServer<Session> {
 
         Server server = new Server();
         server.initRoutes();
+        server.sessionFactory.startConnectionCreator();
     }
 
     public Server() throws IOException, TTransportException {
@@ -25,12 +26,17 @@ public class Server extends BaseServer<Session> {
 
     public void initRoutes() {
         Spark.get("/contests", withREST(this::getContests));
+        Spark.get("/page-info/:id", withREST(this::getPageInfo));
     }
 
     private SessionFactory sessionFactory;
 
     public Object getContests(Session session, Request request) throws TException {
         return session.getContests();
+    }
+
+    public Object getPageInfo(Session session, Request request) throws TException {
+        return session.getPageInfo(Integer.parseInt(request.params("id")));
     }
 
     public String login(Request request, Response response) {
