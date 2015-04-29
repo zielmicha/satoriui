@@ -26,7 +26,7 @@ function SatoriViewModel() {
         });
 
         function loadContest(req, callback) {
-            $.get('/page-info/' + req.params.id, function(result) {
+            getCached(RARE, '/page-info/' + req.params.id, function(result) {
                 $.each(result.subpages, function(i, value) {
                     value.gotoPage = function() {
                         location.hash = '#/contest/' + req.params.id + '/subpage/' + value.id;
@@ -55,8 +55,7 @@ function SatoriViewModel() {
         });
 
         this.get('#/contests', function () {
-            $.get('/contests', function(result) {
-                console.log(result)
+            getCached(RARE, '/contests', function(result) {
                 var results = []
                 for(var i in result) {
                 (function(i) {
@@ -88,6 +87,20 @@ function SatoriViewModel() {
     })
     app.raise_error = true;
     app.run();
+}
+
+var RARE = 'rare'
+var CACHE = {}
+
+function getCached(type, url, callback) {
+    if(typeof CACHE[url] !== 'undefined') {
+        callback(JSON.parse(CACHE[url]));
+        if(type == RARE) return;
+    }
+    $.get(url, function(data) {
+        CACHE[url] = JSON.stringify(data);
+        callback(data);
+    });
 }
 
 var vm
