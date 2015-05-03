@@ -11,14 +11,15 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class SessionFactory {
-    private Map<String, Session> cached = new HashMap<>();
-    private BlockingQueue<TProtocol> connectionPool = new LinkedBlockingQueue<>();
-    private BlockingQueue<Unit> connectionsToCreate = new LinkedBlockingQueue<>();
-
     private static final String host = "satori.tcs.uj.edu.pl";
     private static final int thriftPort = 2889;
     private static final int blobsPort = 2887;
     private static final int connectionCount = 16;
+
+	private final Map<String, Session> cached = new HashMap<>();
+	private final BlockingQueue<TProtocol> connectionPool = new LinkedBlockingQueue<>();
+	private final BlockingQueue<Unit> connectionsToCreate = new LinkedBlockingQueue<>();
+	private final ForkJoinPool forkJoinPool = new ForkJoinPool(connectionCount * 3);
 
     public SessionFactory() throws IOException, TTransportException {
         for(int i=0; i < connectionCount; i++) {
@@ -58,6 +59,7 @@ public class SessionFactory {
     }
 
     public Connection takeConnection() throws TException {
+		System.err.println("takeConnection " + connectionStat());
         TProtocol protocol;
         try {
             protocol = connectionPool.take();
@@ -67,25 +69,52 @@ public class SessionFactory {
         return new SessionConnection(protocol);
     }
 
-    public interface Producer<T> {
+	private String connectionStat() {
+		return connectionPool.size() + "/" + connectionCount;
+	}
+
+	public interface Producer<T> {
         T produce(Connection conn) throws TException;
     }
 
-    public <T> T withConnection(Producer<T> producer) throws TException {
-        while(true) {
-            Connection conn = takeConnection();
-            try {
-                return producer.produce(conn);
-            } catch (TTransportException ex) {
-                ex.printStackTrace();
-                conn.destroy();
-                conn = null;
-            } finally {
-                if (conn != null)
-                    conn.close();
-            }
-        }
+    public <T> T withConnection(Producer<T> producer) {
+		return wrapInPool(() -> {
+			while (true) {
+				Connection conn = takeConnection();
+				try {
+					return producer.produce(conn);
+				} catch (TTransportException ex) {
+					ex.printStackTrace();
+					conn.destroy();
+					conn = null;
+				} finally {
+					if (conn != null)
+						conn.close();
+				}
+			}
+		});
     }
+
+	@SuppressWarnings("unchecked")
+	private <S, E extends Exception> S wrapInPool(ThrowingCallable<S, E> callable) {
+		// Makes parallelStream() use our own pool.
+		// See: http://stackoverflow.com/questions/21163108/custom-thread-pool-in-java-8-parallel-stream
+		try {
+			return forkJoinPool.submit(() -> {
+				try {
+					return callable.call();
+				} catch(Exception e) {
+					throw new RuntimeException(e); // TODO
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private interface ThrowingCallable<S, E extends Exception> {
+		S call() throws E;
+	}
 
     private class SessionConnection
             extends Connection {
@@ -99,8 +128,8 @@ public class SessionFactory {
                 try {
                     connectionsToCreate.put(Unit.VALUE);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+					throw new RuntimeException(e);
+				}
             }
             protocol.getTransport().close();
         }
@@ -110,6 +139,7 @@ public class SessionFactory {
             synchronized (SessionFactory.this) {
                 try {
                     connectionPool.put(protocol);
+					System.err.println("closeConnection " + connectionStat());
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -130,10 +160,15 @@ public class SessionFactory {
         return new TBinaryProtocol(new TFramedTransport(new TSocket(socket)));
     }
 
-    public synchronized Session get(String cred) throws TException {
-        Session sess = cached.get(cred);
-        if(sess == null) {
-            cached.put(cred, sess = new Session(this, cred));
+    public Session get(String cred) throws TException {
+		Session sess;
+		synchronized (cached) {
+			sess = cached.get(cred);
+		}
+		if(sess == null) {
+			synchronized (cached) {
+				cached.put(cred, sess = new Session(this, cred));
+			}
             sess.init();
         }
         return sess;
