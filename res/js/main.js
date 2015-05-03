@@ -6,6 +6,7 @@ function SatoriViewModel() {
     self.contest = ko.observable(null);
     self.subpage = ko.observable(null);
     self.news = ko.observable(null);
+    self.results = ko.observable(null);
 
     self.clear = function() {
         self.loginDialog(undefined);
@@ -13,6 +14,7 @@ function SatoriViewModel() {
         self.contest(undefined);
         self.subpage(undefined);
         self.news(undefined);
+        self.results(undefined);
     }
 
     self.currentSubpageId = function() {
@@ -42,6 +44,9 @@ function SatoriViewModel() {
                 result.gotoNews = function() {
                     location.hash = '#/contest/' + req.params.id;
                 }
+                result.gotoResults = function() {
+                    location.hash = '#/contest/' + req.params.id + '/results';
+                }
 
                 callback(result);
                 self.contest(result);
@@ -60,8 +65,17 @@ function SatoriViewModel() {
         });
 
         this.get('#/contest/:id/results', function() {
+            var req = this;
             loadContest(this, function(result) {
-                self.results([])
+                getCached(null, '/results/' + req.params.id, function(results) {
+                    $.each(results, function(i, result) {
+                        result.openDetailed = function() {
+                            result.showDetailed(!result.showDetailed());
+                        }
+                        result.showDetailed = ko.observable(i == 0);
+                    });
+                    self.results(results);
+                })
             });
         });
 

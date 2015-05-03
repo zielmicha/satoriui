@@ -5,3 +5,22 @@
 .premsg {
     white-space: pre-wrap;
 }
+
+[data-status] {
+    font-weight: bold;
+    color: white;
+    background-color: gray;
+    cursor: pointer;
+}
+
+[data-status="OK"] {
+    background-color: green;
+}
+
+[data-status="TLE"], [data-status="RTE"], [data-status="ANS"] {
+    background-color: rgb(180, 0, 0);
+}
+
+[data-status="REJ"] {
+    background-color: purple;
+}

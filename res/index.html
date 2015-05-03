@@ -82,6 +82,9 @@
       <li role="presentation" data-bind="css: {active: $root.news}">
         <a data-bind="click: gotoNews" rol="tab">News</a>
       </li>
+      <li role="presentation" data-bind="css: {active: $root.results}">
+        <a data-bind="click: gotoResults" rol="tab">Results</a>
+      </li>
       <!-- ko foreach: subpages -->
       <li role="presentation" data-bind="css: {active: id == $root.currentSubpageId()}">
         <a data-bind="click: gotoPage, text: name"
@@ -107,9 +110,20 @@
     </div>
 
     <div class="tab-content">
-      <!-- ko with: $root.results -->
+      <!-- ko if: $root.results -->
       <div role="tabpanel" class="tab-pane fade in active">
         <h2>Results</h2>
+        <table class="table table-striped">
+          <tbody>
+          <!-- ko foreach: $root.results -->
+          <tr>
+            <td data-bind="text: problem_mapping.code"></td>
+            <td data-bind="text: status, attr: {'data-status': status}, click: openDetailed"></td>
+            <td data-bind="if: showDetailed"><pre data-bind="text: report"></pre></td>
+          </tr>
+          <!-- /ko -->
+          </tbody>
+        </table>
       </div>
       <!-- /ko -->
     </div>
