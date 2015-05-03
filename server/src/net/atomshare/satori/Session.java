@@ -47,6 +47,11 @@ public class Session {
                 conn.web.Web_get_subpage_list_for_contest(token, contest, true));
     }
 
+    public Object getResults(long contest) throws TException {
+        return withConnection((conn) ->
+                conn.web.Web_get_results(token, contest, 0, 0, 1000, 0, true));
+    }
+
     private void authenticate() throws TException {
         String[] credArr = cred.split(":");
         token = withConnection((conn) ->
@@ -56,4 +61,5 @@ public class Session {
     public <T> T withConnection(SessionFactory.Producer<T> producer) throws TException {
         return factory.withConnection(producer);
     }
+
 }

@@ -59,6 +59,12 @@ function SatoriViewModel() {
             });
         });
 
+        this.get('#/contest/:id/results', function() {
+            loadContest(this, function(result) {
+                self.results([])
+            });
+        });
+
         this.get('#/contest/:id/subpage/:subpage', function() {
             var req = this;
             loadContest(req, function(result) {
