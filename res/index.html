@@ -79,17 +79,29 @@
     <h1>Contest <span data-bind="text: contest.name"></span></h1>
 
     <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" data-bind="css: {active: $root.news}">
+        <a data-bind="click: gotoNews" rol="tab">News</a>
+      </li>
       <!-- ko foreach: subpages -->
-      <li role="presentation" class="active">
+      <li role="presentation" data-bind="css: {active: id == $root.currentSubpageId()}">
         <a data-bind="click: gotoPage, text: name"
-           aria-controls="home" role="tab"></a></li>
+           role="tab"></a></li>
       <!-- /ko -->
     </ul>
 
     <div class="tab-content">
       <!-- ko with: $root.subpage -->
       <div role="tabpanel" class="tab-pane fade in active">
-        <pre data-bind="text: content"></pre>
+        <div class=premsg data-bind="text: content"></div>
+      </div>
+      <!-- /ko -->
+      <!-- ko if: $root.news -->
+      <div role="tabpanel" class="tab-pane fade in active">
+        <!-- ko foreach: $root.news -->
+        <h3 data-bind="text: subpage.name"></h3>
+        <div class=premsg data-bind="text: subpage.content"></div>
+        <hr />
+        <!-- /ko -->
       </div>
       <!-- /ko -->
     </div>

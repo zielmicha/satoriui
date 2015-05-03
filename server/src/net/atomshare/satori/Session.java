@@ -42,6 +42,11 @@ public class Session {
         return getPageInfo(0);
     }
 
+    public List<SubpageInfo> getNews(long contest) throws TException {
+        return withConnection((conn) ->
+                conn.web.Web_get_subpage_list_for_contest(token, contest, true));
+    }
+
     private void authenticate() throws TException {
         String[] credArr = cred.split(":");
         token = withConnection((conn) ->

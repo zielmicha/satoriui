@@ -1,3 +1,7 @@
 #main-container {
     margin-top: 60px;
 }
+
+.premsg {
+    white-space: pre-wrap;
+}
