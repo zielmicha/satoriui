@@ -7,14 +7,17 @@ function SatoriViewModel() {
     self.subpage = ko.observable(null);
     self.news = ko.observable(null);
     self.results = ko.observable(null);
+    self.problems = ko.observable(null);
 
     self.clear = function() {
-        self.loginDialog(undefined);
-        self.contests(undefined);
-        self.contest(undefined);
-        self.subpage(undefined);
-        self.news(undefined);
-        self.results(undefined);
+        epochId ++;
+        self.loginDialog(null);
+        self.contests(null);
+        self.contest(null);
+        self.subpage(null);
+        self.news(null);
+        self.results(null);
+        self.problems(null);
     }
 
     self.currentSubpageId = function() {
@@ -47,6 +50,9 @@ function SatoriViewModel() {
                 result.gotoResults = function() {
                     location.hash = '#/contest/' + req.params.id + '/results';
                 }
+                result.gotoProblems = function() {
+                    location.hash = '#/contest/' + req.params.id + '/problems';
+                }
 
                 callback(result);
                 self.contest(result);
@@ -66,16 +72,63 @@ function SatoriViewModel() {
 
         this.get('#/contest/:id/results', function() {
             var req = this;
+            var startEpoch = epochId;
             loadContest(this, function(result) {
-                getCached(null, '/results/' + req.params.id, function(results) {
-                    $.each(results, function(i, result) {
-                        result.openDetailed = function() {
-                            result.showDetailed(!result.showDetailed());
+                function load(first) {
+                    if(startEpoch != epochId) {
+                        clearInterval(intervalId);
+                    }
+                    getCached(first ? null : REFRESH, '/results/' + req.params.id, function(results) {
+                        $.each(results, function(i, result) {
+                            result.openDetailed = function() {
+                                result.showDetailed(!result.showDetailed());
+                            }
+                            result.showDetailed = ko.observable(i == 0);
+                        });
+                        console.log('render results');
+                        self.results(results);
+                    }, startEpoch)
+                }
+
+                var intervalId = setInterval(load, 5000);
+                load(true);
+            });
+        });
+
+        function doSubmit(problem) {
+
+        }
+
+        this.get('#/contest/:id/problems', function() {
+            var req = this;
+            var startEpoch = epochId;
+            loadContest(this, function(result) {
+                getCached(RARE, '/problems/' + req.params.id, function(problems) {
+                    $.each(problems, function(i, problem) {
+                        problem.status = null;
+                        problem.doSubmit = function() {
+                            doSubmit(problem)
                         }
-                        result.showDetailed = ko.observable(i == 0);
+                        problem.href = 'https://satori.tcs.uj.edu.pl/view/ProblemMapping/' +
+                            problem.problem_mapping.id + '/statement_files/_pdf/' + problem.problem_mapping.code + '.pdf'
                     });
-                    self.results(results);
-                })
+                    self.problems(problems);
+
+                    getCached(null, '/results/' + req.params.id, function(results) {
+                        $.each(problems, function(i, problem) {
+                            for(var j=results.length - 1; j >= 0; j --) {
+                                var result = results[j];
+                                if(result.problem_mapping.id == problem.problem_mapping.id) {
+                                    problem.status = result.status;
+                                    if(problem.status == 'OK') break;
+                                }
+                            }
+                        });
+
+                        self.problems(null); // force update
+                        self.problems(problems);
+                    }, startEpoch);
+                }, startEpoch);
             });
         });
 
@@ -91,13 +144,15 @@ function SatoriViewModel() {
 
         this.get('#/contests', function () {
             getCached(RARE, '/contests', function(result) {
-                var results = []
+                var mainContests = []
+                var otherContests = []
+                var archivedContests = []
                 for(var i in result) {
                 (function(i) {
                     var item = result[i];
-                    var accepted = !item.contestant || item.contestant.accepted;
-                    if(accepted && !item.contest.archived)
-                        results.push({
+                    var accepted = item.contestant && item.contestant.accepted;
+                    (accepted ? (item.contest.archived ? archivedContests : mainContests) : otherContests)
+                        .push({
                             name: item.contest.name,
                             description: item.contest.description,
                             open: function() {
@@ -107,7 +162,9 @@ function SatoriViewModel() {
                 })(i);
                  }
                 self.contests([
-                    {name: 'All contests', contests: results}
+                    {name: 'My contests', contests: mainContests},
+                    {name: 'My archived contests', contests: archivedContests},
+                    {name: 'Other contests', contests: otherContests},
                 ]);
             });
         });
@@ -124,17 +181,30 @@ function SatoriViewModel() {
     app.run();
 }
 
-var RARE = 'rare'
-var CACHE = {}
+var RARE = 'rare';
+var REFRESH = 'refresh';
+var CACHE = {};
+var epochId = 1;
 
-function getCached(type, url, callback) {
-    if(typeof CACHE[url] !== 'undefined') {
-        callback(JSON.parse(CACHE[url]));
-        if(type == RARE) return;
+function getCached(type, url, callback, startEpoch) {
+    if(!startEpoch)
+        startEpoch = epochId;
+    if(startEpoch != epochId)
+        return;
+
+    if(type != REFRESH) {
+        if(typeof CACHE[url] !== 'undefined') {
+            callback(JSON.parse(CACHE[url]));
+            if(type == RARE) return;
+        }
     }
     $.get(url, function(data) {
-        CACHE[url] = JSON.stringify(data);
-        callback(data);
+        if(startEpoch != epochId) return;
+        var dataString = JSON.stringify(data);
+        if(!CACHE[url] || CACHE[url] != dataString) {
+            CACHE[url] = dataString;
+            callback(data);
+        }
     });
 }
 

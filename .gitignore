@@ -3,3 +3,5 @@ build
 /.idea
 
 jfxrt.jar
+/rstproc
+nimcache

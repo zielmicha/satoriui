@@ -31,6 +31,7 @@ public class Server extends BaseServer<Session> {
         Spark.get("/page-info/:id", withREST(this::getPageInfo));
         Spark.get("/news/:id", withREST(this::getNews));
         Spark.get("/results/:id", withREST(this::getResults));
+        Spark.get("/problems/:id", withREST(this::getProblems));
     }
 
     private Object getNews(Session session, Request request) throws TException {
@@ -47,6 +48,10 @@ public class Server extends BaseServer<Session> {
 
     public Object getPageInfo(Session session, Request request) throws TException {
         return session.getPageInfo(Long.parseLong(request.params("id")));
+    }
+
+    public Object getProblems(Session session, Request request) throws TException {
+        return session.getProblems(Long.parseLong(request.params("id")));
     }
 
     public String login(Request request, Response response) {
