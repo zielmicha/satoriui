@@ -17,10 +17,10 @@
     background-color: green;
 }
 
-[data-status="TLE"], [data-status="RTE"], [data-status="ANS"] {
+[data-status="TLE"], [data-status="RTE"], [data-status="ANS"], [data-status="MEM"] {
     background-color: rgb(180, 0, 0);
 }
 
-[data-status="REJ"] {
+[data-status="REJ"], [data-status="CME"] {
     background-color: purple;
 }

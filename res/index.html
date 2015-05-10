@@ -75,12 +75,15 @@
 </div>
 
 <div data-bind="with: contest">
-  <div class="col-md-6 col-md-offset-1">
+  <div class="col-md-8 col-md-offset-1">
     <h1>Contest <span data-bind="text: contest.name"></span></h1>
 
     <ul class="nav nav-tabs" role="tablist">
       <li role="presentation" data-bind="css: {active: $root.news}">
         <a data-bind="click: gotoNews" rol="tab">News</a>
+      </li>
+      <li role="presentation" data-bind="css: {active: $root.problems}">
+        <a data-bind="click: gotoProblems" rol="tab">Problems</a>
       </li>
       <li role="presentation" data-bind="css: {active: $root.results}">
         <a data-bind="click: gotoResults" rol="tab">Results</a>
@@ -95,14 +98,14 @@
     <div class="tab-content">
       <!-- ko with: $root.subpage -->
       <div role="tabpanel" class="tab-pane fade in active">
-        <div class=premsg data-bind="text: content"></div>
+        <div class=premsg data-bind="html: content"></div>
       </div>
       <!-- /ko -->
       <!-- ko if: $root.news -->
       <div role="tabpanel" class="tab-pane fade in active">
         <!-- ko foreach: $root.news -->
         <h3 data-bind="text: subpage.name"></h3>
-        <div class=premsg data-bind="text: subpage.content"></div>
+        <div class=premsg data-bind="html: subpage.content"></div>
         <hr />
         <!-- /ko -->
       </div>
@@ -114,12 +117,49 @@
       <div role="tabpanel" class="tab-pane fade in active">
         <h2>Results</h2>
         <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Status</th>
+              <th><code>------------------------------------------------------------</code></th>
+            </tr>
+          </thead>
           <tbody>
           <!-- ko foreach: $root.results -->
           <tr>
             <td data-bind="text: problem_mapping.code"></td>
             <td data-bind="text: status, attr: {'data-status': status}, click: openDetailed"></td>
             <td data-bind="if: showDetailed"><pre data-bind="text: report"></pre></td>
+          </tr>
+          <!-- /ko -->
+          </tbody>
+        </table>
+      </div>
+      <!-- /ko -->
+    </div>
+
+    <div class="tab-content">
+      <!-- ko if: $root.problems -->
+      <div role="tabpanel" class="tab-pane fade in active">
+        <h2>Problems</h2>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Last status</th>
+              <th>Content</th>
+            </tr>
+          </thead>
+          <tbody>
+          <!-- ko foreach: $root.problems -->
+          <tr>
+            <td data-bind="text: problem_mapping.code"></td>
+            <td data-bind="text: problem_mapping.title"></td>
+            <td data-bind="text: problem_mapping.description"></td>
+            <td data-bind="text: status, attr: {'data-status': status}"></td>
+            <td data-bind="if: has_pdf"><a data-bind="attr: {'href': href}" target="_blank">PDF</a></td>
           </tr>
           <!-- /ko -->
           </tbody>
