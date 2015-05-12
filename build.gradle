@@ -1,6 +1,7 @@
 apply plugin: 'java'
 
 sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
 dependencies {
     compile project(':gui');
@@ -35,5 +36,5 @@ task onejar(type: Jar, dependsOn: compileJava) {
 }
 
 apply plugin:'application'
-mainClassName = 'net.atomshare.satori.gui.LoginScreen'
+mainClassName = 'net.atomshare.satori.gui.Main'
 applicationDefaultJvmArgs = ['-Dprism.verbose=true']

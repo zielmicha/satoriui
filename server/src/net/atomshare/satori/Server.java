@@ -17,20 +17,36 @@ public class Server extends BaseServer<Session> {
 
         Server server = new Server();
         server.initRoutes();
+        server.sessionFactory.startConnectionCreator();
     }
 
     public Server() throws IOException, TTransportException {
         sessionFactory = new SessionFactory();
     }
 
+    private SessionFactory sessionFactory;
+
     public void initRoutes() {
         Spark.get("/contests", withREST(this::getContests));
+        Spark.get("/page-info/:id", withREST(this::getPageInfo));
+        Spark.get("/news/:id", withREST(this::getNews));
+        Spark.get("/results/:id", withREST(this::getResults));
     }
 
-    private SessionFactory sessionFactory;
+    private Object getNews(Session session, Request request) throws TException {
+        return session.getNews(Long.parseLong(request.params("id")));
+    }
+
+    private Object getResults(Session session, Request request) throws TException {
+        return session.getResults(Long.parseLong(request.params("id")));
+    }
 
     public Object getContests(Session session, Request request) throws TException {
         return session.getContests();
+    }
+
+    public Object getPageInfo(Session session, Request request) throws TException {
+        return session.getPageInfo(Long.parseLong(request.params("id")));
     }
 
     public String login(Request request, Response response) {

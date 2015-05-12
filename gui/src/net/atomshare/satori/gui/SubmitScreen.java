@@ -1,9 +1,4 @@
 package net.atomshare.satori.gui;
-
-/**
- * Created by franciszek on 26.04.15.
- */
-
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -22,15 +17,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-public class LoginScreen extends Application {
-    public static void main(String[] args) {
+public class SubmitScreen extends Application{
+	public static void main(String[] args) {
         launch(args);
-    }
-
-    @Override
+	}
+	@Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("SatoriUi Welcome");
+        primaryStage.setTitle("Wysyłanie rozwiązań");
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -41,7 +34,7 @@ public class LoginScreen extends Application {
         final Text actiontarget = new Text();
         grid.add(actiontarget, 1, 6);
 
-        Button btn = new Button("Sign in");
+        Button btn = new Button("Wyślij");
         HBox hbBtn = new HBox(10);
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hbBtn.getChildren().add(btn);
@@ -50,25 +43,25 @@ public class LoginScreen extends Application {
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                actiontarget.setFill(Color.FIREBRICK);
-                actiontarget.setText("Sign in button pressed");
+                actiontarget.setFill(Color.GREEN);
+                actiontarget.setText("Wysłano");
             }
         });
 
-        Scene scene = new Scene(grid, 0b100101100, 275);
+        Scene scene = new Scene(grid, 400, 250);
         primaryStage.setScene(scene);
 
-        Text scenetitle = new Text("Welcome");
+        Text scenetitle = new Text("Wyślij rozwiązanie");
         scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
         grid.add(scenetitle, 0, 0, 2, 1);
 
-        Label userName = new Label("User Name:");
+        Label userName = new Label("Wybierz zadanie:");
         grid.add(userName, 0, 1);
 
         TextField userTextField = new TextField();
         grid.add(userTextField, 1, 1);
 
-        Label pw = new Label("Password:");
+        Label pw = new Label("Wybierz plik:");
         grid.add(pw, 0, 2);
 
         PasswordField pwBox = new PasswordField();

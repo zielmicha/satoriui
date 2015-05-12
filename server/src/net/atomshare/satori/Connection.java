@@ -15,5 +15,6 @@ public abstract class Connection implements AutoCloseable {
         this.web = new Web.Client(protocol);
     }
 
+    public abstract void destroy();
     public abstract void close();
 }
