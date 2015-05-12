@@ -28,8 +28,11 @@ public class Session {
     }
 
     public List<ProblemMappingInfo> getProblems(long contest) throws TException {
-        return withConnection((conn) ->
-				conn.web.Web_get_problem_mapping_list(token, contest));
+        return withConnection((conn) -> {
+            List<ProblemMappingInfo> problems = conn.web.Web_get_problem_mapping_list(token, contest);
+            problems.sort((a, b) -> Comparator.<String>naturalOrder().compare(a.problem_mapping.code, b.problem_mapping.code));
+            return problems;
+        });
     }
 
     public UserStruct getCurrentUser() throws TException {
@@ -37,8 +40,13 @@ public class Session {
     }
 
     public PageInfo getPageInfo(long contest) throws TException {
-        return withConnection((conn) ->
-				conn.web.Web_get_page_info(token, contest));
+        return withConnection((conn) -> {
+            PageInfo info = conn.web.Web_get_page_info(token, contest);
+            for(SubpageStruct subpage: info.subpages) {
+                subpage.content = RSTRenderer.render(subpage.content);
+            }
+            return info;
+        });
     }
 
     public PageInfo getPageInfo() throws TException {
@@ -46,8 +54,14 @@ public class Session {
     }
 
     public List<SubpageInfo> getNews(long contest) throws TException {
-        return withConnection((conn) ->
-                conn.web.Web_get_subpage_list_for_contest(token, contest, true));
+        return withConnection((conn) -> {
+            List<SubpageInfo> infos = conn.web.Web_get_subpage_list_for_contest(token, contest, true);
+            for(SubpageInfo info: infos) {
+                info.subpage.content = RSTRenderer.render(info.subpage.content);
+            }
+            infos.sort((a, b) -> Comparator.<Long>naturalOrder().compare(b.subpage.date_created, a.subpage.date_created));
+            return infos;
+        });
     }
 
     public Object getResults(long contest) throws TException {
@@ -72,6 +86,15 @@ public class Session {
 
 			return results;
 		});
+    }
+
+    public List<ProblemMappingStruct> getAllProblems(long contest) throws TException {
+        return withConnection((conn) -> {
+            ProblemMappingStruct struct = new ProblemMappingStruct();
+            struct.contest = contest;
+            List<ProblemMappingStruct> submits = conn.problemMapping.ProblemMapping_filter(token, struct);
+            return submits;
+        });
     }
 
     private void authenticate() throws TException {
