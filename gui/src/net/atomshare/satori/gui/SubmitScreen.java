@@ -1,3 +1,4 @@
+//Jan Derbisz
 package net.atomshare.satori.gui;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -17,6 +18,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
 public class SubmitScreen extends Application{
 	public static void main(String[] args) {
         launch(args);
