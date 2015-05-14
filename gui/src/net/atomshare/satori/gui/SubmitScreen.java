@@ -26,6 +26,22 @@ public class SubmitScreen extends Application{
     public static void main(String[] args) {
         launch(args);
     }
+    private static class Wpisano
+    {
+        boolean b;
+        public Wpisano()
+        {
+            b=false;
+        }
+        public void change()
+        {
+            b=true;
+        }
+        public boolean get()
+        {
+            return b;
+        }
+    }
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Wysyłanie rozwiązań");
@@ -36,9 +52,9 @@ public class SubmitScreen extends Application{
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
+        final Wpisano w = new Wpisano();
         final Text actiontarget = new Text();
         grid.add(actiontarget, 1, 4);
-
         final Text actiontarget2 = new Text();
         actiontarget2.setFill(Color.RED);
         actiontarget2.setText("Nie wybrano pliku");
@@ -66,16 +82,27 @@ public class SubmitScreen extends Application{
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                actiontarget.setFill(Color.GREEN);
-                actiontarget.setText("Wysłano");
+                if (w.get()==true)
+                {
+                    actiontarget.setFill(Color.GREEN);
+                    actiontarget.setText("Wysłano");
+                }
+                else
+                {
+                    actiontarget.setFill(Color.RED);
+                    actiontarget.setText("Wybierz plik!");
+                }
             }
         });
 
         btn2.setOnAction(new EventHandler<ActionEvent>() {
+
             @Override
             public void handle(ActionEvent e) {
                 actiontarget2.setFill(Color.BLUE);
                 actiontarget2.setText("Nazwa_Pliku");
+                w.change();
+
             }
         });
 
