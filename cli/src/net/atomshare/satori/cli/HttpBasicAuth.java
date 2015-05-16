@@ -1,5 +1,6 @@
-package net.atomshare.satori.cli;
+//package net.atomshare.satori.cli;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,10 +13,10 @@ public class HttpBasicAuth {
     public static void main(String[] args) {
 
         try {
-            URL url = new URL ("https://satori.atomshare.net/page-info/2696917:8080/farqd"); // "http://ip:port/login"
-            String encoding = ("korwinkrul");
+            URL url = new URL ("https://satori.atomshare.net/page-info/2696917"); // "http://ip:port/login"
+            String encoding = ("XXX");
 
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             connection.setRequestProperty  ("Authorization", "Basic " + encoding);
