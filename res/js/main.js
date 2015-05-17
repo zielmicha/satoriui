@@ -191,6 +191,26 @@ var RARE = 'rare';
 var REFRESH = 'refresh';
 var CACHE = {};
 var epochId = 1;
+var animRef = 0;
+
+function startAnim(type) {
+    if(type == REFRESH) return;
+    animRef ++;
+    if(animRef == 1) {
+        $('.navbar').animate({'background-color': '#ddd'}, {queue: false});
+        $('.loading').show();
+    }
+}
+
+function finishAnim(type) {
+    if(type == REFRESH) return;
+    animRef --;
+    console.log(animRef);
+    if(animRef == 0) {
+        $('.navbar').animate({'background-color': '#fff'}, {queue: false});
+        $('.loading').hide();
+    }
+}
 
 function getCached(type, url, callback, startEpoch) {
     if(!startEpoch)
@@ -198,18 +218,26 @@ function getCached(type, url, callback, startEpoch) {
     if(startEpoch != epochId)
         return;
 
+    startAnim(type);
+
+    var finished = false;
     if(type != REFRESH) {
         if(typeof CACHE[url] !== 'undefined') {
             callback(JSON.parse(CACHE[url]));
-            if(type == RARE) return;
+            finished = true;
+            finishAnim(type);
+            if(type == RARE) {
+                return;
+            }
         }
     }
     $.get(url, function(data) {
-        if(startEpoch != epochId) return;
+        if(startEpoch != epochId) return finished || finishAnim(type);
         var dataString = JSON.stringify(data);
         if(!CACHE[url] || CACHE[url] != dataString) {
             CACHE[url] = dataString;
             callback(data);
+            return finished || finishAnim(type);
         }
     });
 }

@@ -11,6 +11,15 @@
     overflow-y: scroll;
 }
 
+.content-holder {
+    background-color: white;
+}
+
+.loading {
+    margin-left: 1em;
+    color: #777;
+}
+
 [data-status] {
     font-weight: bold;
     color: white;
