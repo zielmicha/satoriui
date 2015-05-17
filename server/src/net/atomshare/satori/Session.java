@@ -104,7 +104,14 @@ public class Session {
     }
 
     public <T> T withConnection(SessionFactory.Producer<T> producer) {
-        return factory.withConnection(producer);
+        return factory.withConnection((conn) -> {
+            try {
+                return producer.produce(conn);
+            } catch(TokenInvalid ex) {
+                authenticate();
+                return producer.produce(conn);
+            }
+        });
     }
 
 }
