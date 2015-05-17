@@ -196,7 +196,8 @@ function rebaseHTML(data, baseHref) {
     var elem = $('<div>' + data + '</div>');
     elem.find('[href]').each(function() {
         var self = $(this);
-        self.attr('href', baseHref.replace(/{}/g, self.attr('href')));
+        if(self.attr('href').indexOf('://') == -1)
+            self.attr('href', baseHref.replace(/{}/g, self.attr('href')));
         self.attr('target', '_blank');
     });
     return elem.html();
