@@ -137,8 +137,13 @@ function SatoriViewModel() {
             var req = this;
             loadContest(req, function(result) {
                 $.each(result.subpages, function(i, value) {
-                    if(value.id === parseInt(req.params.subpage))
+                    if(value.id === parseInt(req.params.subpage)) {
+                        console.log(value);
+                        value.content = rebaseHTML(value.content,
+                                                   'https://satori.tcs.uj.edu.pl/view/Subpage/' +
+                                                   value.id + '/content_files/{}/{}')
                         self.subpage(value);
+                    }
                 });
             });
         });
@@ -185,6 +190,16 @@ function SatoriViewModel() {
     })
     app.raise_error = true;
     app.run();
+}
+
+function rebaseHTML(data, baseHref) {
+    var elem = $('<div>' + data + '</div>');
+    elem.find('[href]').each(function() {
+        var self = $(this);
+        self.attr('href', baseHref.replace(/{}/g, self.attr('href')));
+        self.attr('target', '_blank');
+    });
+    return elem.html();
 }
 
 var RARE = 'rare';
