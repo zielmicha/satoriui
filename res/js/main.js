@@ -6,6 +6,7 @@ function SatoriViewModel() {
     self.contest = ko.observable(null);
     self.subpage = ko.observable(null);
     self.news = ko.observable(null);
+    self.globalNews = ko.observable(null);
     self.results = ko.observable(null);
     self.problems = ko.observable(null);
 
@@ -154,6 +155,7 @@ function SatoriViewModel() {
                     (accepted ? (item.contest.archived ? archivedContests : mainContests) : otherContests)
                         .push({
                             name: item.contest.name,
+                            id: item.contest.id,
                             description: item.contest.description,
                             open: function() {
                                 location.hash = '#/contest/' + item.contest.id
@@ -162,10 +164,14 @@ function SatoriViewModel() {
                 })(i);
                  }
                 self.contests([
-                    {name: 'My contests', contests: mainContests},
-                    {name: 'My archived contests', contests: archivedContests},
-                    {name: 'Other contests', contests: otherContests},
+                    {name: 'My contests', contests: mainContests, news: true},
+                    {name: 'My archived contests', contests: archivedContests, news: false},
+                    {name: 'Other contests', contests: otherContests, news: true},
                 ]);
+            });
+
+            getCached(null, '/global-news', function(result) {
+                self.globalNews(result);
             });
         });
 

@@ -6,6 +6,11 @@
     white-space: pre-wrap;
 }
 
+.global-news {
+    max-height: 1000px;
+    overflow-y: scroll;
+}
+
 [data-status] {
     font-weight: bold;
     color: white;

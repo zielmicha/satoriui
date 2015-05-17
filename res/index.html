@@ -30,18 +30,29 @@
 <div>
 
 
-<div data-bind="if: contests">
-  <div class="col-md-6 col-md-offset-1"
+<div data-bind="if: contests" class="col-md-6 col-md-offset-1">
+  <div
      data-bind="foreach: contests">
     <table class="table table-striped">
       <caption data-bind="text: name"></caption>
       <tbody data-bind="foreach: contests">
-        <tr data-bind="click: open">
-          <td data-bind="text: name"></td>
+        <tr>
+          <td><a data-bind="text: name, attr: {href: '/#/contest/' + id}"></td>
           <td data-bind="text: description"></td>
         </tr>
       </tbody>
     </table>
+
+    <!-- ko if: news -->
+    <div class=global-news>
+    <h1>News from your contests</h1>
+    <!-- ko foreach: $root.globalNews -->
+    <h3><a data-bind="text: subpage.name, attr: {href: '/#/contest/' + subpage.contest}"></a></h3>
+    <div class=premsg data-bind="html: subpage.content"></div>
+    <hr />
+    <!-- /ko -->
+    </div>
+    <!-- /ko -->
   </div>
 </div>
 

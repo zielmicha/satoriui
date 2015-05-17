@@ -28,6 +28,7 @@ public class Server extends BaseServer<Session> {
 
     public void initRoutes() {
         Spark.get("/contests", withREST(this::getContests));
+        Spark.get("/global-news", withREST(this::getGlobalNews));
         Spark.get("/page-info/:id", withREST(this::getPageInfo));
         Spark.get("/news/:id", withREST(this::getNews));
         Spark.get("/results/:id", withREST(this::getResults));
@@ -36,6 +37,10 @@ public class Server extends BaseServer<Session> {
 
     private Object getNews(Session session, Request request) throws TException {
         return session.getNews(Long.parseLong(request.params("id")));
+    }
+
+    private Object getGlobalNews(Session session, Request request) throws TException {
+        return session.getGlobalNews();
     }
 
     private Object getResults(Session session, Request request) throws TException {

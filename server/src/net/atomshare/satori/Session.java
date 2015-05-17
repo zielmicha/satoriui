@@ -23,7 +23,7 @@ public class Session {
             authenticate();
     }
 
-    public List<ContestInfo> getContests() throws TException {
+    public List<ContestInfo> getContests() {
         return withConnection((conn) -> conn.web.Web_get_contest_list(token));
     }
 
@@ -35,14 +35,10 @@ public class Session {
         });
     }
 
-    public UserStruct getCurrentUser() throws TException {
-        return getPageInfo().getUser();
-    }
-
-    public PageInfo getPageInfo(long contest) throws TException {
+    public PageInfo getPageInfo(long contest)  {
         return withConnection((conn) -> {
             PageInfo info = conn.web.Web_get_page_info(token, contest);
-            for(SubpageStruct subpage: info.subpages) {
+            for (SubpageStruct subpage : info.subpages) {
                 subpage.content = RSTRenderer.render(subpage.content);
             }
             return info;
@@ -53,10 +49,10 @@ public class Session {
         return getPageInfo(0);
     }
 
-    public List<SubpageInfo> getNews(long contest) throws TException {
+    public List<SubpageInfo> getNews(long contest) {
         return withConnection((conn) -> {
             List<SubpageInfo> infos = conn.web.Web_get_subpage_list_for_contest(token, contest, true);
-            for(SubpageInfo info: infos) {
+            for (SubpageInfo info : infos) {
                 info.subpage.content = RSTRenderer.render(info.subpage.content);
             }
             infos.sort((a, b) -> Comparator.<Long>naturalOrder().compare(b.subpage.date_created, a.subpage.date_created));
@@ -64,28 +60,37 @@ public class Session {
         });
     }
 
+
+    public Object getGlobalNews()  {
+        List<ContestInfo> contests = getContests();
+        Stream<SubpageInfo> ret = contests.parallelStream()
+                .filter((contest) -> !contest.contest.archived && (contest.contestant != null && contest.contestant.accepted))
+                .flatMap((contest) -> getNews(contest.contest.id).stream());
+        List<SubpageInfo> news = ret.collect(Collectors.toList());
+        news.sort((a, b) -> Comparator.<Long>naturalOrder().compare(b.subpage.date_created, a.subpage.date_created));
+        return news;
+    }
+
     public Object getResults(long contest) throws TException {
-        return withConnection((conn) -> {
-			long contestant = conn.web.Web_get_page_info(token, contest).contestant.id;
-			List<ProblemMappingInfo> problems =
-					conn.web.Web_get_problem_mapping_list(token, contest);
+        long contestant = withConnection((conn) -> conn.web.Web_get_page_info(token, contest).contestant.id);
+        List<ProblemMappingInfo> problems =
+                withConnection((conn) -> conn.web.Web_get_problem_mapping_list(token, contest));
 
-			Stream<ResultInfo> ret = problems.parallelStream().flatMap((problem) -> withConnection((iconn) ->
-				iconn.web.Web_get_results(token, contest, contestant, problem.problem_mapping.id, 1000, 0, true)
-					.results.stream()
-			));
+        Stream<ResultInfo> ret = problems.parallelStream().flatMap((problem) -> withConnection((conn) ->
+                        conn.web.Web_get_results(token, contest, contestant, problem.problem_mapping.id, 1000, 0, true)
+                                .results.stream()
+        ));
 
-            List<ResultInfo> results = ret.map((result) -> {
-				// remove unneeded info
-				result.contestant = null;
-				result.problem_mapping.description = null;
-				return result;
-			}).collect(Collectors.toList());
+        List<ResultInfo> results = ret.map((result) -> {
+            // remove unneeded info
+            result.contestant = null;
+            result.problem_mapping.description = null;
+            return result;
+        }).collect(Collectors.toList());
 
-			results.sort((a, b) -> Comparator.<Long>naturalOrder().compare(b.submit.time, a.submit.time));
+        results.sort((a, b) -> Comparator.<Long>naturalOrder().compare(b.submit.time, a.submit.time));
 
-			return results;
-		});
+        return results;
     }
 
     public List<ProblemMappingStruct> getAllProblems(long contest) throws TException {
@@ -113,5 +118,4 @@ public class Session {
             }
         });
     }
-
 }
