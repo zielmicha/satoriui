@@ -83,12 +83,12 @@ function SatoriViewModel() {
                         $.each(results, function(i, result) {
                             result.openDetailed = function() {
                                 result.showDetailed(!result.showDetailed());
-                            }
-                            result.showDetailed = ko.observable(i == 0);
+                            };
+                            result.showDetailed = ko.observable(i === 0);
                         });
                         console.log('render results');
                         self.results(results);
-                    }, startEpoch)
+                    }, startEpoch);
                 }
 
                 var intervalId = setInterval(load, 5000);
@@ -108,10 +108,10 @@ function SatoriViewModel() {
                     $.each(problems, function(i, problem) {
                         problem.status = null;
                         problem.doSubmit = function() {
-                            doSubmit(problem)
-                        }
-                        problem.href = 'https://satori.tcs.uj.edu.pl/view/ProblemMapping/' +
-                            problem.problem_mapping.id + '/statement_files/_pdf/' + problem.problem_mapping.code + '.pdf'
+                            doSubmit(problem);
+                        };
+                        problem.href = '/blob/ProblemMapping/' +
+                            problem.problem_mapping.id + '/statement_files/_pdf/' + problem.problem_mapping.code + '.pdf';
                     });
                     self.problems(problems);
 
@@ -140,8 +140,8 @@ function SatoriViewModel() {
                     if(value.id === parseInt(req.params.subpage)) {
                         console.log(value);
                         value.content = rebaseHTML(value.content,
-                                                   'https://satori.tcs.uj.edu.pl/view/Subpage/' +
-                                                   value.id + '/content_files/{}/{}')
+                                                   '/blob/Subpage/' +
+                                                   value.id + '/content_files/{}/{}');
                         self.subpage(value);
                     }
                 });
@@ -150,9 +150,9 @@ function SatoriViewModel() {
 
         this.get('#/contests', function () {
             getCached(RARE, '/contests', function(result) {
-                var mainContests = []
-                var otherContests = []
-                var archivedContests = []
+                var mainContests = [];
+                var otherContests = [];
+                var archivedContests = [];
                 for(var i in result) {
                 (function(i) {
                     var item = result[i];
@@ -163,9 +163,9 @@ function SatoriViewModel() {
                             id: item.contest.id,
                             description: item.contest.description,
                             open: function() {
-                                location.hash = '#/contest/' + item.contest.id
+                                location.hash = '#/contest/' + item.contest.id;
                             }
-                        })
+                        });
                 })(i);
                  }
                 self.contests([
@@ -181,13 +181,13 @@ function SatoriViewModel() {
         });
 
         this.get('/', function () {
-            location.hash = '#/contests'
+            location.hash = '#/contests';
         });
 
         this._checkFormSubmission = function(form) {
             return false;
         };
-    })
+    });
     app.raise_error = true;
     app.run();
 }
@@ -222,7 +222,7 @@ function finishAnim(type) {
     if(type == REFRESH) return;
     animRef --;
     console.log(animRef);
-    if(animRef == 0) {
+    if(animRef === 0) {
         $('.navbar').animate({'background-color': '#fff'}, {queue: false});
         $('.loading').hide();
     }

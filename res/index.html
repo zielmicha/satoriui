@@ -140,7 +140,7 @@
           <tbody>
           <!-- ko foreach: $root.results -->
           <tr>
-            <td data-bind="text: problem_mapping.code"></td>
+            <td data-bind="text: problem_mapping.code, attr: {id: problem_mapping.id}"></td>
             <td data-bind="text: status, attr: {'data-status': status}, click: openDetailed"></td>
             <td data-bind="if: showDetailed"><pre data-bind="text: report"></pre></td>
           </tr>
