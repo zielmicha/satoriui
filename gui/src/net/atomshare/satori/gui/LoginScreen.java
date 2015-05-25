@@ -1,9 +1,4 @@
 package net.atomshare.satori.gui;
-
-/**
- * Created by franciszek on 26.04.15.
- */
-
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -22,6 +17,17 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javax.net.ssl.HttpsURLConnection;
+
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Scanner;
+
+import org.apache.commons.codec.binary.Base64;
 
 public class LoginScreen extends Application {
     public static void main(String[] args) {
@@ -30,7 +36,8 @@ public class LoginScreen extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("SatoriUi Welcome");
+
+        primaryStage.setTitle("SatoriUi");
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -41,39 +48,43 @@ public class LoginScreen extends Application {
         final Text actiontarget = new Text();
         grid.add(actiontarget, 1, 6);
 
-        Button btn = new Button("Sign in");
+        Button btn = new Button("Zaloguj");
         HBox hbBtn = new HBox(10);
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hbBtn.getChildren().add(btn);
         grid.add(hbBtn, 1, 4);
 
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                actiontarget.setFill(Color.FIREBRICK);
-                actiontarget.setText("Sign in button pressed");
-            }
-        });
 
-        Scene scene = new Scene(grid, 0b100101100, 275);
+
+        Scene scene = new Scene(grid, 350, 275);
         primaryStage.setScene(scene);
 
-        Text scenetitle = new Text("Welcome");
+        Text scenetitle = new Text("Witaj");
         scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
         grid.add(scenetitle, 0, 0, 2, 1);
 
-        Label userName = new Label("User Name:");
+        Label userName = new Label("Nazwa:");
         grid.add(userName, 0, 1);
 
-        TextField userTextField = new TextField();
+        final TextField userTextField = new TextField();
         grid.add(userTextField, 1, 1);
 
-        Label pw = new Label("Password:");
+        Label pw = new Label("Hasło:");
         grid.add(pw, 0, 2);
 
-        PasswordField pwBox = new PasswordField();
+        final PasswordField pwBox = new PasswordField();
         grid.add(pwBox, 1, 2);
-
+        btn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+            	Stage stage=new Stage();
+            	String login = userTextField.getText();
+            	String password = pwBox.getText();
+            	String encoding=Base64.encodeBase64String(  (login+":"+password).getBytes(Charset.forName("UTF-8")));
+                Contests c=new Contests(encoding);
+                c.start(stage);
+            }
+        });
         primaryStage.show();
     }
 }
