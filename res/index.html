@@ -126,6 +126,12 @@
     </div>
 
     <div class="tab-content">
+      <!-- ko if: $root.result -->
+      <pre data-bind="text: $root.result().data"></pre>
+      <!-- /ko -->
+    </div>
+
+    <div class="tab-content">
       <!-- ko if: $root.results -->
       <div role="tabpanel" class="tab-pane fade in active">
         <h2>Results</h2>
@@ -140,9 +146,15 @@
           <tbody>
           <!-- ko foreach: $root.results -->
           <tr>
-            <td data-bind="text: problem_mapping.code, attr: {id: problem_mapping.id}"></td>
+            <td data-bind="text: problem_mapping.code,
+                           attr: {id: problem_mapping.id}"></td>
             <td data-bind="text: status, attr: {'data-status': status}, click: openDetailed"></td>
-            <td data-bind="if: showDetailed"><pre data-bind="text: report"></pre></td>
+            <td data-bind="if: showDetailed">
+              <pre data-bind="text: report"></pre>
+              <a data-bind="attr: {href: '#/contest/' +
+                            $root.contest().contest.id +
+                            '/result/' + submit.id}">View code</a>
+            </td>
           </tr>
           <!-- /ko -->
           </tbody>
@@ -173,6 +185,7 @@
             <td data-bind="text: problem_mapping.description"></td>
             <td data-bind="text: status, attr: {'data-status': status}"></td>
             <td data-bind="if: has_pdf"><a data-bind="attr: {'href': href}" target="_blank">PDF</a></td>
+            <td><a data-bind="attr: {href: html_href}">View</a></td>
           </tr>
           <!-- /ko -->
           </tbody>
