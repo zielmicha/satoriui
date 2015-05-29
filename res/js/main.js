@@ -228,6 +228,8 @@ function finishAnim(type) {
     }
 }
 
+var cacheStorage = localStorage;
+
 function getCached(type, url, callback, startEpoch) {
     if(!startEpoch)
         startEpoch = epochId;
@@ -237,24 +239,28 @@ function getCached(type, url, callback, startEpoch) {
     startAnim(type);
 
     var finished = false;
+
     if(type != REFRESH) {
-        if(typeof CACHE[url] !== 'undefined') {
-            callback(JSON.parse(CACHE[url]));
-            finished = true;
-            finishAnim(type);
+        var cachedVal = cacheStorage.getItem(url);
+        if(cachedVal) {
+            callback(JSON.parse(cachedVal));
             if(type == RARE) {
+                finished = true;
+                finishAnim(type);
                 return;
             }
         }
     }
+
     $.get(url, function(data) {
         if(startEpoch != epochId) return finished || finishAnim(type);
         var dataString = JSON.stringify(data);
-        if(!CACHE[url] || CACHE[url] != dataString) {
-            CACHE[url] = dataString;
+        var cachedVal = cacheStorage.getItem(url);
+        if(!cachedVal || cachedVal != dataString) {
+            cacheStorage.setItem(url, dataString);
             callback(data);
-            return finished || finishAnim(type);
         }
+        return finished || finishAnim(type);
     });
 }
 
