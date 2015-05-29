@@ -23,6 +23,10 @@ public class Session {
             authenticate();
     }
 
+    public String getToken() {
+        return token;
+    }
+
     public List<ContestInfo> getContests() {
         return withConnection((conn) -> conn.web.Web_get_contest_list(token));
     }
@@ -91,6 +95,10 @@ public class Session {
         results.sort((a, b) -> Comparator.<Long>naturalOrder().compare(b.submit.time, a.submit.time));
 
         return results;
+    }
+
+    public Object getResult(long id) {
+        return withConnection((conn) -> conn.web.Web_get_result_details(token, id));
     }
 
     public List<ProblemMappingStruct> getAllProblems(long contest) throws TException {

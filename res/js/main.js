@@ -9,6 +9,7 @@ function SatoriViewModel() {
     self.globalNews = ko.observable(null);
     self.results = ko.observable(null);
     self.problems = ko.observable(null);
+    self.result = ko.observable(null);
 
     self.clear = function() {
         epochId ++;
@@ -19,11 +20,12 @@ function SatoriViewModel() {
         self.news(null);
         self.results(null);
         self.problems(null);
-    }
+        self.result(null);
+    };
 
     self.currentSubpageId = function() {
         return self.subpage() && self.subpage().id;
-    }
+    };
 
     var app = Sammy(function () {
         this.before({}, function() {
@@ -47,13 +49,13 @@ function SatoriViewModel() {
                 });
                 result.gotoNews = function() {
                     location.hash = '#/contest/' + req.params.id;
-                }
+                };
                 result.gotoResults = function() {
                     location.hash = '#/contest/' + req.params.id + '/results';
-                }
+                };
                 result.gotoProblems = function() {
                     location.hash = '#/contest/' + req.params.id + '/problems';
-                }
+                };
 
                 callback(result);
                 self.contest(result);
@@ -71,6 +73,19 @@ function SatoriViewModel() {
             });
         });
 
+        this.get('#/contest/:id/result/:submit', function() {
+            var req = this;
+            var startEpoch = epochId;
+            loadContest(this, function(result) {
+                if(startEpoch != epochId) {
+                    clearInterval(intervalId);
+                }
+                getCached(RARE, '/result/' + req.params.submit, function(result) {
+                    self.result(result);
+                }, startEpoch);
+            });
+        });
+
         this.get('#/contest/:id/results', function() {
             var req = this;
             var startEpoch = epochId;
@@ -83,12 +98,12 @@ function SatoriViewModel() {
                         $.each(results, function(i, result) {
                             result.openDetailed = function() {
                                 result.showDetailed(!result.showDetailed());
-                            }
-                            result.showDetailed = ko.observable(i == 0);
+                            };
+                            result.showDetailed = ko.observable(i === 0);
                         });
                         console.log('render results');
                         self.results(results);
-                    }, startEpoch)
+                    }, startEpoch);
                 }
 
                 var intervalId = setInterval(load, 5000);
@@ -100,6 +115,20 @@ function SatoriViewModel() {
 
         }
 
+        this.get('#/contest/:id/problem/:problem', function() {
+            var req = this;
+            var startEpoch = epochId;
+            loadContest(this, function(result) {
+                getCached(RARE, '/problems/' + req.params.id, function(problems) {
+                    $.each(problems, function(i, problem) {
+                        if(problem.id == req.param('problem')) {
+
+                        }
+                    });
+                });
+            });
+        });
+
         this.get('#/contest/:id/problems', function() {
             var req = this;
             var startEpoch = epochId;
@@ -108,10 +137,11 @@ function SatoriViewModel() {
                     $.each(problems, function(i, problem) {
                         problem.status = null;
                         problem.doSubmit = function() {
-                            doSubmit(problem)
-                        }
-                        problem.href = 'https://satori.tcs.uj.edu.pl/view/ProblemMapping/' +
-                            problem.problem_mapping.id + '/statement_files/_pdf/' + problem.problem_mapping.code + '.pdf'
+                            doSubmit(problem);
+                        };
+                        problem.href = '/blob/ProblemMapping/' +
+                            problem.problem_mapping.id + '/statement_files/_pdf/' + problem.problem_mapping.code + '.pdf';
+                        problem.html_href = '#/contest/:id/problem/:problem';
                     });
                     self.problems(problems);
 
@@ -140,8 +170,8 @@ function SatoriViewModel() {
                     if(value.id === parseInt(req.params.subpage)) {
                         console.log(value);
                         value.content = rebaseHTML(value.content,
-                                                   'https://satori.tcs.uj.edu.pl/view/Subpage/' +
-                                                   value.id + '/content_files/{}/{}')
+                                                   '/blob/Subpage/' +
+                                                   value.id + '/content_files/{}/{}');
                         self.subpage(value);
                     }
                 });
@@ -150,9 +180,9 @@ function SatoriViewModel() {
 
         this.get('#/contests', function () {
             getCached(RARE, '/contests', function(result) {
-                var mainContests = []
-                var otherContests = []
-                var archivedContests = []
+                var mainContests = [];
+                var otherContests = [];
+                var archivedContests = [];
                 for(var i in result) {
                 (function(i) {
                     var item = result[i];
@@ -163,9 +193,9 @@ function SatoriViewModel() {
                             id: item.contest.id,
                             description: item.contest.description,
                             open: function() {
-                                location.hash = '#/contest/' + item.contest.id
+                                location.hash = '#/contest/' + item.contest.id;
                             }
-                        })
+                        });
                 })(i);
                  }
                 self.contests([
@@ -181,13 +211,13 @@ function SatoriViewModel() {
         });
 
         this.get('/', function () {
-            location.hash = '#/contests'
+            location.hash = '#/contests';
         });
 
         this._checkFormSubmission = function(form) {
             return false;
         };
-    })
+    });
     app.raise_error = true;
     app.run();
 }
@@ -222,7 +252,7 @@ function finishAnim(type) {
     if(type == REFRESH) return;
     animRef --;
     console.log(animRef);
-    if(animRef == 0) {
+    if(animRef === 0) {
         $('.navbar').animate({'background-color': '#fff'}, {queue: false});
         $('.loading').hide();
     }
