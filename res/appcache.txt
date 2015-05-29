@@ -1,0 +1,13 @@
+CACHE MANIFEST
+# v4 - 2015-05-29
+/
+/css/main.css
+/dep/bootstrap/css/bootstrap.min.css
+/dep/jquery-1.11.2.js
+/dep/jquery.color-2.1.2.min.js
+/dep/sammy.js
+/dep/knockout-3.3.0.js
+/js/main.js
+
+NETWORK:
+*

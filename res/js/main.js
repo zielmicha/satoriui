@@ -251,7 +251,6 @@ function startAnim(type) {
 function finishAnim(type) {
     if(type == REFRESH) return;
     animRef --;
-    console.log(animRef);
     if(animRef === 0) {
         $('.navbar').animate({'background-color': '#fff'}, {queue: false});
         $('.loading').hide();
@@ -282,15 +281,21 @@ function getCached(type, url, callback, startEpoch) {
         }
     }
 
-    $.get(url, function(data) {
-        if(startEpoch != epochId) return finished || finishAnim(type);
-        var dataString = JSON.stringify(data);
-        var cachedVal = cacheStorage.getItem(url);
-        if(!cachedVal || cachedVal != dataString) {
-            cacheStorage.setItem(url, dataString);
-            callback(data);
+    $.ajax({
+        url: url,
+        success: function(data) {
+            if(startEpoch != epochId) return finished || finishAnim(type);
+            var dataString = JSON.stringify(data);
+            var cachedVal = cacheStorage.getItem(url);
+            if(!cachedVal || cachedVal != dataString) {
+                cacheStorage.setItem(url, dataString);
+                callback(data);
+            }
+            return finished || finishAnim(type);
+        },
+        error: function() {
+            return finished || finishAnim(type);
         }
-        return finished || finishAnim(type);
     });
 }
 
