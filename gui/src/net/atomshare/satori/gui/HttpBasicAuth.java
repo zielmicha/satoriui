@@ -1,13 +1,12 @@
 package net.atomshare.satori.gui;//package net.atomshare.satori.cli;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Scanner;
 
 import org.apache.commons.codec.binary.Base64;
 import org.json.simple.*;
@@ -17,6 +16,7 @@ public class HttpBasicAuth {
 
     String login = "farqd";
     String password = "korwinkrul";
+    String encoding;
 
     public void listContests()
     {
@@ -24,7 +24,7 @@ public class HttpBasicAuth {
 
         try {
             URL url = new URL ("https://satori.atomshare.net/contests"); // "http://ip:port/login"
-            String encoding = Base64.encodeBase64String(  (login+":"+password).getBytes(Charset.forName("UTF-8")));
+            //String encoding = Base64.encodeBase64String(  (login+":"+password).getBytes(Charset.forName("UTF-8")));
 
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
@@ -44,15 +44,12 @@ public class HttpBasicAuth {
 
         for(int i=0 ;i<clist.size(); i++)
         {
-            //if(clist[i].get(i))
             JSONObject K = (JSONObject) clist.get(i);
-          //  String name = K.get("name").getClass();
             if(K.get("contestant") != null) {
                 JSONObject cont = (JSONObject) K.get("contest");
                 if((Boolean)cont.get("archived")==false)
                 System.out.println(cont.get("name"));
             }
-            //System.out.println(K.get("contest").getClass());
         }
     }
 
@@ -67,7 +64,7 @@ public class HttpBasicAuth {
 
         try {
             URL url = new URL ("https://satori.atomshare.net/contests"); // "http://ip:port/login"
-            String encoding = Base64.encodeBase64String((login+":"+password).getBytes(Charset.forName("UTF-8")));
+            //String encoding = Base64.encodeBase64String((login+":"+password).getBytes(Charset.forName("UTF-8")));
 
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
@@ -119,7 +116,7 @@ public class HttpBasicAuth {
         JSONArray plist = new JSONArray();
         try {
             URL url = new URL ("https://satori.atomshare.net/problems/"+contestID); // "http://ip:port/login"
-            String encoding = Base64.encodeBase64String((login+":"+password).getBytes(Charset.forName("UTF-8")));
+            //String encoding = Base64.encodeBase64String((login+":"+password).getBytes(Charset.forName("UTF-8")));
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
@@ -148,57 +145,161 @@ public class HttpBasicAuth {
     }
 
     public void Login()  {
-        System.out.println("GIFF LOGIN...");
-        BufferedReader br =
-                new BufferedReader(new InputStreamReader(System.in));
-        String input = "";
+
+        Console console = System.console();
+        login = console.readLine("Username: ");
+        char[] PASS = console.readPassword("Password: ");
+        password = new String(PASS);
+
+        encoding = Base64.encodeBase64String(  (login+":"+password).getBytes(Charset.forName("UTF-8")));
+
+        PrintWriter out = null;
         try {
-            input=br.readLine();
-        } catch (IOException e) {
+            out = new PrintWriter("file.txt");
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        login = input;
+        out.println(encoding);
+        out.close();
 
-        System.out.println("GIFF PASSWORD...");
+    }
 
+    public void lastResult(Long contestID)
+    {
+        JSONArray rlist = new JSONArray();
         try {
-            input=br.readLine();
-        } catch (IOException e) {
+            URL url = new URL ("https://satori.atomshare.net/results/"+contestID); // "http://ip:port/login"
+            //String encoding = Base64.encodeBase64String((login+":"+password).getBytes(Charset.forName("UTF-8")));
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+            connection.setRequestProperty  ("Authorization", "Basic " + encoding);
+            InputStream content = (InputStream)connection.getInputStream();
+            BufferedReader in   =
+                    new BufferedReader (new InputStreamReader (content));
+            String line;
+
+            line=in.readLine();
+            rlist= (JSONArray) JSONValue.parse(line);
+
+        } catch(Exception e) {
             e.printStackTrace();
         }
-        password = input;
 
+            JSONObject K = (JSONObject) rlist.get(0);
+
+            JSONObject prob = (JSONObject) K.get("problem_mapping");
+            System.out.print(prob.get("code") + " " + prob.get("title") + " ");
+            System.out.println(K.get("status"));
+
+
+    }
+
+    public void printHelp()
+    {
+        System.out.println("# Show help");
+        System.out.println("satori help\n");
+
+
+        System.out.println("# List contests");
+        System.out.println("satori contests\n");
+
+        System.out.println("# List problems");
+        System.out.println("satori problems MP\n");
+
+        System.out.println("# Submit soluion");
+        System.out.println("satori submit ID C C.sql\n");
+
+        System.out.println("# Show result");
+        System.out.println("satori result ID\n");
+
+        System.out.println("# Change saved login and password");
+        System.out.println("satori login\n");
+
+
+    }
+
+    public String loadFile()
+    {
+        Boolean foundFile = true;
+
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader("file.txt"));
+        } catch (FileNotFoundException e) {
+           return null;
+        }
+        if(foundFile)
+            try {
+                StringBuilder sb = new StringBuilder();
+                String line = br.readLine();
+                return line;
+            } catch (IOException e) {
+                return null;
+
+            } finally {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    return null;
+                }
+            }
+        return null;
     }
 
     public static void main(String[] args) {
         HttpBasicAuth CLI = new HttpBasicAuth();
 
 
-        String[] AR = new String[5];
-        AR[0]="contests";
-        AR[1]="MP";
-       // CLI.Login(); // reading login and password from standard input
+        if(args[0].equals("login")){
+            CLI.Login();
+            return;
+        }
+        if(args[0].equals("help")){
+            CLI.printHelp();
+            return;
+        }
+
+        String loadedString = CLI.loadFile();
+        if(loadedString == null)
+            CLI.Login(); // reading login and password from standard input
+        else
+            CLI.encoding = loadedString;
 
 
-        if(AR[0]=="contests")
+
+        if(args[0].equals("contests"))
         {CLI.listContests(); return;}
 
-        if(AR[0]=="submit")
+        if(args[0].equals("submit"))
         {
-            JSONObject con = CLI.findContest(args[1]);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("SUBMITED");
+            return;
+            /*JSONObject con = CLI.findContest(args[1]);
             if(con==null)
             {
                System.out.println("WRONG CONTEST NAME");
                 return;
             }
-            CLI.submit(con, args[2]);
+            CLI.submit(con, args[2]);*/
         }
 
-        if(AR[0]=="problems")
+        if(args[0].equals("problems"))
         {
            // JSONObject con = CLI.findContest(args[1]);
-            JSONObject con = CLI.findContest(AR[1]);
+            JSONObject con = CLI.findContest(args[1]);
             CLI.listProblems((Long) con.get("id"));
+        }
+
+        if(args[0].equals("result"))
+        {
+            JSONObject con = CLI.findContest(args[1]);
+            CLI.lastResult((Long) con.get("id"));
         }
 
     }
