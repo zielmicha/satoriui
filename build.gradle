@@ -29,7 +29,7 @@ task onejar(type: Jar, dependsOn: compileJava) {
     }
 
     manifest {
-        attributes 'Main-Class': 'net.atomshare.satori.Server'
+        attributes 'Main-Class': 'net.atomshare.satori.gui.HttpBasicAuth'
     }
 
     archiveName 'satori-all.jar'
