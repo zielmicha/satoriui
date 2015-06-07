@@ -18,6 +18,7 @@ public class Server extends BaseServer<Session> {
         Server server = new Server();
         server.initRoutes();
         server.sessionFactory.startConnectionCreator();
+        server.sessionFactory.startConnectionDestroyer();
     }
 
     public Server() throws IOException, TTransportException {

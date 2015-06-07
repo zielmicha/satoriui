@@ -31,6 +31,34 @@ public class SessionFactory {
         }
     }
 
+    public void startConnectionDestroyer() {
+        // Now I am become Death, the destroyer of worlds.
+        new Thread(() -> {
+            try {
+                //noinspection InfiniteLoopStatement
+                while (true) {
+                    // Replace all connections every `interval` seconds
+                    final long interval = 1200;
+                    final long delay = interval * 1000 / connectionCount;
+                    Thread.sleep(delay);
+                    try {
+                        recreateConnection();
+                    } catch (TException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void recreateConnection() throws TException {
+        Connection conn = takeConnection();
+        conn.destroy();
+    }
+
     public void startConnectionCreator() {
         new Thread(() -> {
             try {
