@@ -14,8 +14,8 @@ import org.json.simple.*;
 
 public class HttpBasicAuth {
 
-    String login = "farqd";
-    String password = "korwinkrul";
+    String login;
+    String password;
     String encoding;
 
     public void listContests()
