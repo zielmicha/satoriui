@@ -29,11 +29,29 @@ task onejar(type: Jar, dependsOn: compileJava) {
     }
 
     manifest {
-        attributes 'Main-Class': 'net.atomshare.satori.gui.HttpBasicAuth'
+        attributes 'Main-Class': 'net.atomshare.satori.Server'
     }
 
     archiveName 'satori-all.jar'
 }
+
+
+task clijar(type: Jar, dependsOn: compileJava) {
+    from files(sourceSets.main.output.classesDir,
+            sourceSets.main.resources)
+    from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }} {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+
+    manifest {
+        attributes 'Main-Class': 'net.atomshare.satori.gui.HttpBasicAuth'
+    }
+
+    archiveName 'satori-cli.jar'
+}
+
 
 apply plugin:'application'
 mainClassName = 'net.atomshare.satori.gui.Main'
