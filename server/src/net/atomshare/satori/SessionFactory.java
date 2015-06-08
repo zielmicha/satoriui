@@ -14,7 +14,7 @@ public class SessionFactory {
     private static final String host = "satori.tcs.uj.edu.pl";
     private static final int thriftPort = 2889;
     private static final int blobsPort = 2887;
-    private static final int connectionCount = 16;
+    private static final int connectionCount = 4;
 
 	private final Map<String, Session> cached = new HashMap<>();
 	private final BlockingQueue<TProtocol> connectionPool = new LinkedBlockingQueue<>();
