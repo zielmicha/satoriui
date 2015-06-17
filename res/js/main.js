@@ -273,11 +273,6 @@ function getCached(type, url, callback, startEpoch) {
         var cachedVal = cacheStorage.getItem(url);
         if(cachedVal) {
             callback(JSON.parse(cachedVal));
-            if(type == RARE) {
-                finished = true;
-                finishAnim(type);
-                return;
-            }
         }
     }
 
